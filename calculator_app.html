@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        .game-area {
+            width: 400px;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.1);
+            border: 6px solid #48bb78;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .ball {
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, #87ceeb, #4682b4, #1e3a8a);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            transition: none;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: slideUp 0.8s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .display {
+            width: 100%;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.3);
+            border: none;
+            border-radius: 15px;
+            font-size: 2rem;
+            color: white;
+            text-align: right;
+            padding: 0 15px;
+            margin-bottom: 15px;
+            font-weight: 300;
+            letter-spacing: 1px;
+            box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.2);
+            outline: none;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+            width: 280px;
+        }
+
+        .btn {
+            height: 55px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .number {
+            background: linear-gradient(145deg, #4a5568, #2d3748);
+        }
+
+        .operator {
+            background: linear-gradient(145deg, #ed8936, #c05621);
+        }
+
+        .equals {
+            background: linear-gradient(145deg, #48bb78, #38a169);
+            grid-column: span 2;
+        }
+
+        .clear {
+            background: linear-gradient(145deg, #f56565, #e53e3e);
+        }
+
+        .zero {
+            grid-column: span 2;
+        }
+
+        @media (max-width: 480px) {
+            .calculator {
+                padding: 20px;
+            }
+            
+            .buttons {
+                width: 280px;
+                gap: 10px;
+            }
+            
+            .btn {
+                height: 60px;
+                font-size: 1.2rem;
+            }
+            
+            .display {
+                font-size: 2rem;
+                height: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-area" id="gameArea">
+        <!-- Balls will be added by JavaScript -->
+    </div>
+    
+    <div class="calculator">
+        <input type="text" class="display" id="display" readonly>
+        <div class="buttons">
+            <button class="btn clear" onclick="clearDisplay()">C</button>
+            <button class="btn operator" onclick="deleteLast()">⌫</button>
+            <button class="btn operator" onclick="appendToDisplay('/')">/</button>
+            <button class="btn operator" onclick="appendToDisplay('*')">×</button>
+            
+            <button class="btn number" onclick="appendToDisplay('7')">7</button>
+            <button class="btn number" onclick="appendToDisplay('8')">8</button>
+            <button class="btn number" onclick="appendToDisplay('9')">9</button>
+            <button class="btn operator" onclick="appendToDisplay('-')">-</button>
+            
+            <button class="btn number" onclick="appendToDisplay('4')">4</button>
+            <button class="btn number" onclick="appendToDisplay('5')">5</button>
+            <button class="btn number" onclick="appendToDisplay('6')">6</button>
+            <button class="btn operator" onclick="appendToDisplay('+')">+</button>
+            
+            <button class="btn number" onclick="appendToDisplay('1')">1</button>
+            <button class="btn number" onclick="appendToDisplay('2')">2</button>
+            <button class="btn number" onclick="appendToDisplay('3')">3</button>
+            <button class="btn equals" onclick="calculate()" rowspan="2">=</button>
+            
+            <button class="btn number zero" onclick="appendToDisplay('0')">0</button>
+            <button class="btn number" onclick="appendToDisplay('.')">.</button>
+        </div>
+    </div>
+
+    <script>
+        // Calculator functionality
+        let display = document.getElementById('display');
+        let currentInput = '';
+        let operator = '';
+        let previousInput = '';
+        let shouldResetDisplay = false;
+
+        function appendToDisplay(value) {
+            if (shouldResetDisplay) {
+                currentInput = '';
+                shouldResetDisplay = false;
+            }
+
+            if (['+', '-', '*', '/'].includes(value)) {
+                if (currentInput === '' && previousInput === '') return;
+                
+                if (currentInput !== '' && previousInput !== '' && operator !== '') {
+                    calculate();
+                }
+                
+                operator = value;
+                previousInput = currentInput || previousInput;
+                currentInput = '';
+                updateDisplay(previousInput + ' ' + (value === '*' ? '×' : value) + ' ');
+            } else {
+                currentInput += value;
+                if (operator === '') {
+                    updateDisplay(currentInput);
+                } else {
+                    updateDisplay(previousInput + ' ' + (operator === '*' ? '×' : operator) + ' ' + currentInput);
+                }
+            }
+        }
+
+        function updateDisplay(value) {
+            display.value = value || '0';
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            operator = '';
+            previousInput = '';
+            updateDisplay('');
+        }
+
+        function deleteLast() {
+            if (currentInput !== '') {
+                currentInput = currentInput.slice(0, -1);
+                if (operator === '') {
+                    updateDisplay(currentInput);
+                } else {
+                    updateDisplay(previousInput + ' ' + (operator === '*' ? '×' : operator) + ' ' + currentInput);
+                }
+            } else if (operator !== '') {
+                operator = '';
+                currentInput = previousInput;
+                previousInput = '';
+                updateDisplay(currentInput);
+            } else if (previousInput !== '') {
+                previousInput = previousInput.slice(0, -1);
+                updateDisplay(previousInput);
+            }
+        }
+
+        function calculate() {
+            if (previousInput === '' || currentInput === '' || operator === '') return;
+
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operator) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        alert('Cannot divide by zero!');
+                        return;
+                    }
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+
+            result = Math.round(result * 100000000) / 100000000;
+            
+            updateDisplay(result);
+            currentInput = result.toString();
+            operator = '';
+            previousInput = '';
+            shouldResetDisplay = true;
+
+            // Add balls based on the result (absolute value to handle negatives)
+            const ballsToAdd = Math.abs(Math.floor(result));
+            if (ballsToAdd > 0 && ballsToAdd <= 50) { // Limit to prevent too many balls
+                addBalls(ballsToAdd);
+            }
+        }
+
+        // Keyboard support for calculator
+        document.addEventListener('keydown', function(event) {
+            const key = event.key;
+            
+            if (key >= '0' && key <= '9') {
+                appendToDisplay(key);
+            } else if (key === '.') {
+                appendToDisplay('.');
+            } else if (['+', '-', '*', '/'].includes(key)) {
+                appendToDisplay(key);
+            } else if (key === 'Enter' || key === '=') {
+                event.preventDefault();
+                calculate();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearDisplay();
+            } else if (key === 'Backspace') {
+                event.preventDefault();
+                deleteLast();
+            }
+        });
+
+        updateDisplay('');
+
+        // Bouncing balls game
+        const gameArea = document.getElementById('gameArea');
+        const balls = [];
+
+        class Ball {
+            constructor() {
+                this.element = document.createElement('div');
+                this.element.className = 'ball';
+                this.x = Math.random() * (400 - 20);
+                this.y = Math.random() * (400 - 20);
+                this.vx = (Math.random() - 0.5) * 8;
+                this.vy = (Math.random() - 0.5) * 8;
+                this.size = 20;
+                
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+                gameArea.appendChild(this.element);
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                // Bounce off walls
+                if (this.x <= 0 || this.x >= 400 - this.size) {
+                    this.vx = -this.vx;
+                    this.x = this.x <= 0 ? 0 : 400 - this.size;
+                }
+                if (this.y <= 0 || this.y >= 400 - this.size) {
+                    this.vy = -this.vy;
+                    this.y = this.y <= 0 ? 0 : 400 - this.size;
+                }
+
+                this.element.style.left = this.x + 'px';
+                this.element.style.top = this.y + 'px';
+            }
+        }
+
+        function addBalls(count) {
+            for (let i = 0; i < count; i++) {
+                balls.push(new Ball());
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            balls.forEach(ball => ball.update());
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
